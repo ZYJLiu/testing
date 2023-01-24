@@ -8,17 +8,35 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var items = ["Item 1", "Item 2", "Item 3"]
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationView {
+            List {
+                ForEach(items, id: \.self) { item in
+                    Text(item)
+                }
+                .onDelete(perform: deleteItems)
+            }
+            .navigationBarTitle("Items")
+            .navigationBarItems(trailing:
+                HStack {
+                    Button(action: addItem) {
+                        Image(systemName: "plus")
+                    }
+                }
+            )
         }
-        .padding()
+    }
+
+    func addItem() {
+        items.append("New Item")
+    }
+
+    func deleteItems(at offsets: IndexSet) {
+        items.remove(atOffsets: offsets)
     }
 }
-
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
