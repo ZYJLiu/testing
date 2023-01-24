@@ -7,36 +7,51 @@
 
 import SwiftUI
 
+
 struct ContentView: View {
-    @State private var items = ["Item 1", "Item 2", "Item 3"]
+    struct Todo: Hashable {
+        var id = UUID()
+        var text: String
+        var isCompleted: Bool
+    }
+
+    @State var todos: [Todo] = []
+    @State var newTodo: String = ""
 
     var body: some View {
         NavigationView {
-            List {
-                ForEach(items, id: \.self) { item in
-                    Text(item)
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .navigationBarTitle("Items")
-            .navigationBarItems(trailing:
+            VStack {
                 HStack {
-                    Button(action: addItem) {
+                    TextField("New Todo", text: $newTodo)
+                    Button(action: {
+                        self.todos.append(Todo(text: self.newTodo, isCompleted: false))
+                        self.newTodo = ""
+                    }) {
                         Image(systemName: "plus")
                     }
                 }
-            )
+                .padding()
+                List {
+                    ForEach(todos, id: \.self) { todo in
+                        HStack {
+                            Image(systemName: todo.isCompleted ? "checkmark.circle" : "circle")
+                                .onTapGesture {
+                                    let index = self.todos.firstIndex { $0.id == todo.id }!
+                                    self.todos[index].isCompleted.toggle()
+                                }
+                            Text(todo.text)
+                        }
+                    }
+                    .onDelete { indexSet in
+                        self.todos.remove(atOffsets: indexSet)
+                    }
+                }
+            }
+            .navigationBarTitle("Todo List")
         }
     }
-
-    func addItem() {
-        items.append("New Item")
-    }
-
-    func deleteItems(at offsets: IndexSet) {
-        items.remove(atOffsets: offsets)
-    }
 }
+
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
